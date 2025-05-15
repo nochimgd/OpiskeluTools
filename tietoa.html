@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Tietoa OpiskeluTools-sivustosta">
+    <meta name="keywords" content="opiskelu, opiskelutyökalut, opiskelusivusto, tietoa, apuvälineet">
+    <meta name="author" content="Enoch">
+    <meta name="robots" content="index, follow">
+
+    <title>Tietoa – OpiskeluTools</title>
+
+    <!-- Oma CSS-tyylitiedosto -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Ulkoiset fontit Google Fontsista -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Open+Sans:wght@700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome ikonikirjasto -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Sivun header-osio sisältää logon ja navigaation -->
+    <header>
+        <!-- Logo linkkinä etusivulle -->
+        <a href="index.html">
+            <img src="logo.png" alt="OpiskeluTools logo" class="logo-img">
+        </a>
+        <!-- Sivuston nimi näkyvissä logon vieressä -->
+        <div class="logo">OpiskeluTools</div>
+        <!-- Mobiilivalikon toiminnalisuus -->
+        <button class="menu-toggle" aria-label="Avaa valikko">☰</button>
+        <!-- Navigointilinkit muihin sivuihin -->
+        <nav class="nav-links">
+            <a href="muistiinpanot.html"><i class="fas fa-book"></i> Muistiinpanot</a>
+            <a href="tehtavat.html"><i class="fas fa-tasks"></i> Tehtävät</a>
+            <a href="kalenteri.html"><i class="fas fa-calendar-alt"></i> Kalenteri</a>
+            <a href="tietoa.html"><i class="fas fa-info-circle"></i> Tietoa</a>
+        </nav>
+    </header>
+
+    <!-- Sivun pääsisältö -->
+    <main class="container">
+        <h1><i class="fas fa-info-circle"></i> Tietoa sivustosta</h1>
+        <!-- Sisältöteksti -->
+        <section class="highlight">
+            <h2>Mikä on OpiskeluTools?</h2>
+            <p>OpiskeluTools on opiskelijoille suunnattu verkkosivusto, joka auttaa hallitsemaan opiskelua tehokkaasti.
+                Sivusto tarjoaa yksinkertaiset ja selkeät työkalut muistiinpanojen kirjoittamiseen, tehtävien hallintaan
+                ja ajankäytön suunnitteluun kalenterin avulla. Sivuston tavoitteena on tukea opiskelijan arkea ja
+                vähentää opiskelustressiä tuomalla tärkeät työkalut yhteen paikkaan. Voit käyttää OpiskeluToolsia millä
+                tahansa laitteella – tietokoneella, puhelimella tai tabletilla. Sivusto ei vaadi rekisteröitymistä, eikä
+                tietojasi tallenneta palvelimelle. Kaikki muistiinpanot ja tehtävät tallentuvat turvallisesti omaan
+                selaimeesi. </p>
+
+            <!-- Kuva tietoa-sivulle -->
+            <img src="tietoa.jpg" alt="Opiskelija kirjoittamassa muistiinpanoja" class="info-image">
+        </section>
+
+        <section class="highlight">
+            <h3>Ominaisuudet</h3>
+            <ul>
+                <li>📝 Muistiinpanot: kirjoita ja säilytä muistiinpanoja helposti</li>
+                <li>✅ Tehtävät: lisää, merkitse tehdyksi ja poista opiskelutehtäviä</li>
+                <li>📅 Kalenteri: seuraa aikatauluja ja lisää tapahtumia päiville</li>
+            </ul>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2025 OpiskeluTools</p>
+        <p><a href="#">🔝 Takaisin ylös</a></p>
+    </footer>
+
+     <!-- Mobiilivalikon toiminta -->
+    <script>
+        const toggle = document.querySelector(".menu-toggle");
+        const nav = document.querySelector(".nav-links");
+
+        // Avaa tai sulkee valikon napista
+        toggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            nav.classList.toggle("active");
+        });
+
+        // Sulkee valikon, jos klikataan sen ulkopuolelle
+        document.addEventListener("click", (e) => {
+            if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+                nav.classList.remove("active");
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Hallinnoi opiskelutehtäviä helposti OpiskeluToolsin tehtävälistan avulla.">
+    <meta name="keywords" content="tehtävät, tehtävienhallinta, opiskelu, opiskelutyökalut">
+    <meta name="author" content="Enoch">
+    <meta name="robots" content="index, follow">
+
+    <title>Tehtävät – OpiskeluTools</title>
+
+    <!-- Oma CSS-tyylitiedosto -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Ulkoiset fontit Google Fontsista -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Open+Sans:wght@700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome ikonikirjasto -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Sivun header-osio sisältää logon ja navigaation -->
+    <header>
+        <!-- Logo linkkinä etusivulle -->
+        <a href="index.html">
+            <img src="logo.png" alt="OpiskeluTools logo" class="logo-img">
+        </a>
+        <!-- Sivuston nimi näkyvissä logon vieressä -->
+        <div class="logo">OpiskeluTools</div>
+        <!-- Mobiilivalikon toiminnalisuus -->
+        <button class="menu-toggle" aria-label="Avaa valikko">☰</button>
+        <!-- Navigointilinkit muihin sivuihin -->
+        <nav class="nav-links">
+            <a href="muistiinpanot.html"><i class="fas fa-book"></i> Muistiinpanot</a>
+            <a href="tehtavat.html"><i class="fas fa-tasks"></i> Tehtävät</a>
+            <a href="kalenteri.html"><i class="fas fa-calendar-alt"></i> Kalenteri</a>
+            <a href="tietoa.html"><i class="fas fa-info-circle"></i> Tietoa</a>
+        </nav>
+    </header>
+
+    <!-- Sivun pääsisältö -->
+    <main class="container">
+        <!-- Sivun otsikko ja esittelyteksti -->
+        <h1>✅ Tehtävät</h1>
+        <p>Voit lisätä, merkitä tehdyksi ja poistaa opiskelutehtäviä.</p>
+        <!-- Tehtävälista ja lomake -->
+        <input type="text" id="taskInput" placeholder="Kirjoita uusi tehtävä...">
+        <input type="date" id="taskDeadline">
+        <button id="addTask">➕ Lisää tehtävä</button>
+        <!-- Tehtävälista -->
+        <ul id="taskList"></ul>
+        <!-- Tehtäväkuva -->
+        <img src="tehtavat.jpg" alt="Tehtävälista" class="task-img">
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2025 OpiskeluTools</p>
+        <p><a href="#">🔝 Takaisin ylös</a></p>
+    </footer>
+
+    <script>
+        // Mobiilivalikon toiminnallisuus
+        const menuToggle = document.querySelector(".menu-toggle");
+        const nav = document.querySelector(".nav-links");
+
+        // Avaa tai sulkee valiko
+        menuToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            nav.classList.toggle("active");
+        });
+
+        // Sulkee valikon, jos klikataan sen ulkopuolelle
+        document.addEventListener("click", (e) => {
+            if (!nav.contains(e.target) && !menuToggle.contains(e.target)) {
+                nav.classList.remove("active");
+            }
+        });
+
+        // Haetaan tarvittavat elementit
+        const taskInput = document.getElementById("taskInput");
+        const addTask = document.getElementById("addTask");
+        const taskList = document.getElementById("taskList");
+
+        // Funktio tehtävien näyttämiseen localStoragesta
+        function renderTasks() {
+            taskList.innerHTML = "";
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+            tasks.forEach((task, index) => {
+                const li = document.createElement("li");
+                li.textContent = task.text;
+
+                // Jos tehtävällä on deadline, näytetään se
+                if (task.deadline) {
+                    const [year, month, day] = task.deadline.split("-");
+                    const formattedDate = `${day}.${month}.${year}`;
+
+                    const deadlineSpan = document.createElement("span");
+                    deadlineSpan.textContent = ` (🔔 ${formattedDate})`;
+                    deadlineSpan.style.marginLeft = "10px";
+                    deadlineSpan.style.fontStyle = "italic";
+                    deadlineSpan.style.fontSize = "0.9em";
+
+
+                    // 🔴 Tarkistetaan onko deadline mennyt, jon on mennyt merkitäään punaisella
+                    const today = new Date();
+                    const deadlineDate = new Date(`${task.deadline}T23:59:59`);
+                    if (deadlineDate < today && !task.done) {
+                        deadlineSpan.style.color = "red";
+                        deadlineSpan.title = "Deadline on vanhentunut!";
+                    }
+                    li.appendChild(deadlineSpan);
+                }
+
+                // Jos tehtävä on merkitty tehdyksi, lisätään luokka
+                if (task.done) li.classList.add("done");
+
+                // Klikkaamalla tehtävää vaihdetaan sen tila (tehty/ei tehty)
+                li.addEventListener("click", () => {
+                    tasks[index].done = !tasks[index].done;
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                    renderTasks();
+                });
+
+                // Poistopainike tehtävälle
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "❌";
+                deleteBtn.className = "delete-btn";
+                deleteBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    tasks.splice(index, 1); // Poistetaan tehtävä listasta
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                    renderTasks();
+                });
+
+                li.appendChild(deleteBtn);
+                taskList.appendChild(li);
+            });
+        }
+
+        // Lisää tehtävä -painikkeen toiminta
+        addTask.addEventListener("click", () => {
+            const taskText = taskInput.value.trim();
+            const deadline = document.getElementById("taskDeadline").value;
+
+            if (taskText) {
+                const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                tasks.push({ text: taskText, done: false, deadline: deadline });
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+                taskInput.value = "";
+                document.getElementById("taskDeadline").value = ""; // tyhjennä kenttä
+                renderTasks();
+            }
+        });
+
+        // Näytetään tehtävät sivun latauksessa
+        renderTasks();
+    </script>
+</body>
+
+</html>

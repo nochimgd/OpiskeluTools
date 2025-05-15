@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="OpiskeluTools on opiskelijoille suunnattu työkalu, jolla voit hallita muistiinpanoja ja tehtäviä helposti yhdessä paikassa.">
+  <meta name="keywords" content="opiskelu, muistiinpanot, opiskelutyökalut, opiskelusuunnittelu, opiskelun apuvälineet">
+  <meta name="author" content="Enoch">
+  <meta name="robots" content="index, follow">
+
+  <title>Etusivu - OpiskeluTools</title>
+
+  <!-- Oma CSS-tyylitiedosto -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Ulkoiset fontit Google Fontsista -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Open+Sans:wght@700&display=swap"
+    rel="stylesheet">
+  <!-- FontAwesome ikonikirjasto -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+  <!-- Sivun header-osio sisältää logon ja navigaation -->
+  <header>
+    <!-- Logo toimii linkkinä takaisin etusivulle -->
+    <a href="index.html">
+      <img src="logo.png" alt="OpiskeluTools logo" class="logo-img">
+    </a>
+    <!-- Sivuston nimi näkyvissä logon vieressä -->
+    <div class="logo"> OpiskeluTools</div>
+    <!-- Mobiilivalikon toiminnalisuus -->
+    <button class="menu-toggle" aria-label="Avaa valikko">☰</button>
+    <!-- Navigointilinkit muihin sivuihin -->
+    <nav class="nav-links">
+      <a href="muistiinpanot.html"><i class="fas fa-book"></i> Muistiinpanot</a>
+      <a href="tehtavat.html"><i class="fas fa-tasks"></i> Tehtävät</a>
+      <a href="kalenteri.html"><i class="fas fa-calendar-alt"></i> Kalenteri</a>
+      <a href="tietoa.html"><i class="fas fa-info-circle"></i> Tietoa</a>
+    </nav>
+  </header>
+
+  <!-- Sivun pääsisältö -->
+  <main class="container">
+    <h1> OpiskeluTools</h1>
+    <h2>🎓Tervetuloa OpiskeluToolsiin!</h2>
+    <p> Opiskelutoolsissa järjestät opiskelusi helposti ja tehokkaasti.</p>
+    <!-- Navigointipainikkeet muistiinpanoihin ja tehtäviin -->
+    <div class="buttons">
+      <a href="muistiinpanot.html" class="nav-button">📝 Muistiinpanot</a>
+      <a href="tehtavat.html" class="nav-button">✅ Tehtävät</a>
+      <!-- Etusivun kuva -->
+      <img src="etusivu.avif" alt="etusivun kuva" class="home-image">
+
+      <section class="highlight">
+        <h2>Miksi käyttää OpiskeluToolsia?</h2>
+        <p>Hallinnoi muistiinpanoja, seuraa tehtäviä ja pysy ajan tasalla.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p>&copy; 2025 OpiskeluTools</p>
+    <p><a href="#">🔝 Takaisin ylös</a></p>
+  </footer>
+
+  <!-- JavaScript-koodi hampurilaisvalikon toiminnalle -->
+  <script>
+    const toggle = document.querySelector(".menu-toggle");
+    const nav = document.querySelector(".nav-links");
+
+    // Avaa/sulje valikko napista
+    toggle.addEventListener("click", (e) => {
+      e.stopPropagation(); // Estää sulkeutumisen heti
+      nav.classList.toggle("active");
+    });
+
+    // Sulje valikko, jos klikataan muualla
+    document.addEventListener("click", (e) => {
+      if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+        nav.classList.remove("active");
+      }
+    });
+  </script>
+</body>
+
+</html>

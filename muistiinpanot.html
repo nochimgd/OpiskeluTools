@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+        content="Kirjoita ja säilytä opiskelumuistiinpanojasi OpiskeluToolsin muistiinpanot-työkalulla.">
+    <meta name="keywords"
+        content="opiskelu, muistiinpanot, opiskelutyökalut, opiskelusuunnittelu, opiskelun apuvälineet">
+    <meta name="author" content="Enoch">
+    <meta name="robots" content="index, follow">
+
+    <title>Muistiinpanot – OpiskeluTools</title>
+
+    <!-- Oma CSS-tyylitiedosto -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Ulkoiset fontit Google Fontsista -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Open+Sans:wght@700&display=swap"
+        rel="stylesheet">
+    <!-- FontAwesome ikonikirjasto -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Sivun header-osio sisältää logon ja navigaation -->
+    <header>
+        <!-- Logo linkkinä etusivulle -->
+        <a href="index.html">
+            <img src="logo.png" alt="OpiskeluTools logo" class="logo-img">
+        </a>
+        <!-- Sivuston nimi näkyvissä logon vieressä -->
+        <div class="logo">OpiskeluTools</div>
+    <!-- Mobiilivalikon toiminnalisuus -->
+    <button class="menu-toggle" type="button" aria-label="Avaa valikko">☰</button>
+        <!-- Navigointilinkit muihin sivuihin -->
+        <nav class="nav-links">
+            <a href="muistiinpanot.html"><i class="fas fa-book"></i> Muistiinpanot</a>
+            <a href="tehtavat.html"><i class="fas fa-tasks"></i> Tehtävät</a>
+            <a href="kalenteri.html"><i class="fas fa-calendar-alt"></i> Kalenteri</a>
+            <a href="tietoa.html"><i class="fas fa-info-circle"></i> Tietoa</a>
+        </nav>
+    </header>
+
+    <!-- Sivun pääsisältö -->
+    <main class="container">
+        <div class="content-wrapper">
+            <div class="text-content">
+                <!-- Sivun otsikko ja esittelyteksti -->
+                <h1>📝 Muistiinpanot</h1>
+                <p>Tällä sivulla voit kirjoittaa ja säilyttää opiskelumuistiinpanojasi.</p>
+
+                <!-- Kenttä muistiinpanon otsikolle -->
+                <input type="text" id="noteTitle" placeholder="Otsikko..."><br>
+
+                <!-- Muistiinpanon tekstikenttä -->
+                <textarea id="noteInput" placeholder="Kirjoita muistiinpano..." rows="6" cols="50"></textarea><br>
+
+                <!-- Tallennuspainike -->
+                <button id="saveNote" type="button">💾 Tallenna</button>
+
+                <!-- Tallennettujen muistiinpanojen osio -->
+                <div class="saved-notes" id="savedNotesSection">
+                    <!-- Kuva muistiinpanoista -->
+                    <img src="muistiinpanot.png" alt="muistiinpanot" class="notes-img">
+                    <h2>Tallennetut muistiinpanot</h2>
+                    <!-- Lista muistiinpanoista -->
+                    <ul id="notesList"></ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2025 OpiskeluTools</p>
+        <p><a href="#">🔝 Takaisin ylös</a></p>
+    </footer>
+
+    <script>
+        // Mobiilivalikon toiminnallisuus
+        const toggle = document.querySelector(".menu-toggle");
+        const nav = document.querySelector(".nav-links");
+
+        // Avaa/sulje valikko napista
+        toggle.addEventListener("click", (e) => {
+            e.stopPropagation(); // Estää sulkeutumisen heti
+            nav.classList.toggle("active");
+        });
+
+        // Sulje valikko, jos klikataan muualla
+        document.addEventListener("click", (e) => {
+            if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+                nav.classList.remove("active");
+            }
+        });
+
+        // Muuttujat muistiinpanojen kentille ja listalle
+        const noteTitle = document.getElementById('noteTitle');
+        const noteInput = document.getElementById('noteInput');
+        const notesList = document.getElementById('notesList');
+        const saveNote = document.getElementById('saveNote');
+
+        let editIndex = -1;
+
+        // Funktio näyttää kaikki tallennetut muistiinpanot
+        function renderNotes() {
+            // Piilotetaan muistiinpanot-osio jos ei ole muistiinpanoja
+            const savedNotesSection = document.getElementById('savedNotesSection');
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+            // Piilota tai näytä tallennetut muistiinpanot -osio
+            if (notes.length === 0) {
+                savedNotesSection.style.display = 'none';
+            } else {
+                savedNotesSection.style.display = 'block';
+            }
+
+            notesList.innerHTML = '';
+
+            notes.forEach((note, index) => {
+                const li = document.createElement('li');
+
+                // Painike, jossa muistiinpanon otsikko
+                const titleBtn = document.createElement('button');
+                titleBtn.textContent = note.title || '💡 (Ei otsikkoa)';
+                titleBtn.className = 'note-title-btn';
+
+                // Piilotettava sisältöosio
+                const contentDiv = document.createElement('div');
+                contentDiv.textContent = note.content;
+                contentDiv.style.display = 'none';
+
+                // Klikkaamalla otsikkoa näytetään/piilotetaan sisältö
+                titleBtn.onclick = () => {
+                    contentDiv.style.display = contentDiv.style.display === 'none' ? 'block' : 'none';
+                };
+
+                // Muokkaa-painike
+                const editBtn = document.createElement('button');
+                editBtn.textContent = '✏️ Muokkaa';
+                editBtn.className = 'edit-btn';
+                editBtn.onclick = () => {
+                    noteTitle.value = note.title;
+                    noteInput.value = note.content;
+                    editIndex = index; //muokkauindeksi
+                };
+
+                // Poista-painike
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '❌ Poista';
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.onclick = () => {
+                    notes.splice(index, 1);
+                    localStorage.setItem('notes', JSON.stringify(notes));
+                    renderNotes();
+                };
+
+                li.appendChild(titleBtn);
+                li.appendChild(contentDiv);
+                li.appendChild(editBtn);
+                li.appendChild(deleteBtn);
+                notesList.appendChild(li);
+            });
+        }
+
+        // Tallenna-painikkeen toiminta
+        saveNote.addEventListener('click', () => {
+            const title = noteTitle.value.trim();
+            const content = noteInput.value.trim();
+            if (content) {
+                const notes = JSON.parse(localStorage.getItem('notes')) || [];
+
+                const newNote = { title: title || 'Muistiinpano', content };
+
+                if (editIndex === -1) {
+                    notes.unshift(newNote)
+                } else {
+                    notes[editIndex] = newNote;
+                    editIndex = -1;
+                }
+
+                // Tallennetaan localStorageen ja tyhjennetään kentät
+                localStorage.setItem('notes', JSON.stringify(notes));
+                noteTitle.value = '';
+                noteInput.value = '';
+                renderNotes();
+            }
+        });
+
+        // Näytetään muistiinpanot sivun latauksessa
+        renderNotes();
+    </script>
+</body>
+
+</html>

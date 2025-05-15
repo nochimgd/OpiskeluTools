@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Kalenteri">
+    <meta name="keywords" content="kalenteri, opiskelukalenteri, tehtävät, aikataulu">
+    <meta name="author" content="Enoch">
+    <meta name="robots" content="index, follow">
+
+    <title>Kalenteri – OpiskeluTools</title>
+
+    <!-- Ulkoiset fontit Google Fontsista -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@700&family=Open+Sans:wght@700&display=swap"
+        rel="stylesheet">
+    <!-- Oma CSS-tyylitiedosto -->
+    <link rel="stylesheet" href="style.css">
+    <!-- FontAwesome ikonikirjasto -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+    <!-- Sivun header-osio logon ja navigaation -->
+    <header>
+        <!-- Logo linkkinä etusivulle -->
+        <a href="index.html">
+            <img src="logo.png" alt="OpiskeluTools logo" class="logo-img">
+        </a>
+        <!-- Sivuston nimi näkyvissä logon vieressä -->
+        <div class="logo">OpiskeluTools</div>
+        <!-- Hampurilaisvalikko -->
+        <button class="menu-toggle" aria-label="Avaa valikko">☰</button>
+        <!-- Navigointilinkit muihin sivuihin -->
+        <nav class="nav-links">
+            <a href="muistiinpanot.html"><i class="fas fa-book"></i> Muistiinpanot</a>
+            <a href="tehtavat.html"><i class="fas fa-tasks"></i> Tehtävät</a>
+            <a href="kalenteri.html"><i class="fas fa-calendar-alt"></i> Kalenteri</a>
+            <a href="tietoa.html"><i class="fas fa-info-circle"></i> Tietoa</a>
+        </nav>
+    </header>
+
+    <!-- Sivun pääsisältö -->
+    <main class="container">
+        <!-- Sivun otsikko -->
+        <h1>📅 Kalenteri</h1>
+
+        <!-- Kuukauden navigointipainikkeet -->
+        <div class="month-navigation">
+            <button id="prevMonth">← Edellinen</button>
+            <span id="currentMonth"></span>
+            <button id="nextMonth">Seuraava →</button>
+        </div>
+
+        <!-- Viikonpäivien otsikot -->
+        <div id="calendarHeader" class="calendar-header">
+            <div>Ma</div>
+            <div>Ti</div>
+            <div>Ke</div>
+            <div>To</div>
+            <div>Pe</div>
+            <div>La</div>
+            <div>Su</div>
+        </div>
+
+        <!-- Kalenterin päivien ruudukko -->
+        <div id="calendar" class="calendar-grid"></div>
+
+        <div id="eventForm" class="hidden">
+            <h3>🖊️ Tapahtuman muokkaus <span id="selectedDate"></span></h3>
+            <input type="text" id="eventTitle" placeholder="Merkinnän otsikko...">
+            <button id="saveEvent">💾 Tallenna</button>
+            <ul id="eventList"></ul>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p>&copy; 2025 OpiskeluTools</p>
+        <!-- Linkki takaisin sivun yläosaan -->
+        <p><a href="#">🔝 Takaisin ylös</a></p>
+    </footer>
+
+    <script>
+        // Valitaan DOM-elementit JavaScriptissä
+        const calendar = document.getElementById("calendar");
+        const selectedDateSpan = document.getElementById("selectedDate");
+        const eventForm = document.getElementById("eventForm");
+        const saveEvent = document.getElementById("saveEvent");
+        const eventTitle = document.getElementById("eventTitle");
+        const eventList = document.getElementById("eventList");
+        const currentMonthLabel = document.getElementById("currentMonth");
+
+        // Mobiilivalikon toiminnallisuus
+        const toggle = document.querySelector(".menu-toggle");
+        const nav = document.querySelector(".nav-links");
+
+        toggle.addEventListener("click", (e) => {
+            e.stopPropagation(); // Estää valikon sulkeutumisen heti
+            nav.classList.toggle("active");
+        });
+
+        // Sulkee valikon, kun klikataan valikon tai napin ulkopuolelle
+        document.addEventListener("click", (e) => {
+            if (!nav.contains(e.target) && !toggle.contains(e.target)) {
+                nav.classList.remove("active");
+
+            }
+
+            // Sulkee myös tapahtumalomakkeen, jos klikataan kalenterin tai lomakkeen ulkopuolelle
+            if (!calendar.contains(e.target) && !eventForm.contains(e.target)) {
+                eventForm.classList.add("hidden");
+                saveEvent.dataset.date = "";
+            }
+        });
+
+        //Nykyinen päivämäärä
+        let current = new Date();
+        let viewedYear = current.getFullYear();
+        let viewedMonth = current.getMonth();
+        const monthNames = ["Tammikuu", "Helmikuu", "Maaliskuu", "Huhtikuu", "Toukokuu", "Kesäkuu", "Heinäkuu", "Elokuu", "Syyskuu", "Lokakuu", "Marraskuu", "Joulukuu"];
+
+        function updateEventList(dateKey) {
+            // Haetaan tapahtumat localStoragesta
+            const events = JSON.parse(localStorage.getItem(`event-${dateKey}`)) || [];
+            eventList.innerHTML = "";
+
+            events.forEach((ev, index) => {
+                const li = document.createElement("li");
+                li.textContent = ev;
+
+                // Poistonappi
+                const deleteBtn = document.createElement("button");
+                deleteBtn.textContent = "❌";
+                deleteBtn.classList.add("event-list-button");
+
+                deleteBtn.style.marginLeft = "10px";
+                deleteBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    // Poistetaan tapahtuma taulukosta ja päivitetään tallennus
+                    events.splice(index, 1);
+                    localStorage.setItem(`event-${dateKey}`, JSON.stringify(events));
+                    updateEventList(dateKey);
+                    renderCalendar();
+                });
+
+                // Muokkauspainike
+                const editBtn = document.createElement("button");
+                editBtn.textContent = "✏️";
+                editBtn.classList.add("event-list-button");
+
+                editBtn.style.marginLeft = "10px";
+                editBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    eventTitle.value = ev;
+                    events.splice(index, 1);
+                    localStorage.setItem(`event-${dateKey}`, JSON.stringify(events));
+                    updateEventList(dateKey);
+                    renderCalendar();
+                });
+
+                // Lisätään painikkeet listaelementtiin
+                li.appendChild(deleteBtn);
+                li.appendChild(editBtn);
+                eventList.appendChild(li);
+            });
+        }
+
+        // Piirtää kalenterin valitulle kuukaudelle ja vuodelle
+        function renderCalendar() {
+            calendar.innerHTML = "";
+
+            // Kuukauden ensimmäinen ja viimeinen päivä
+            const firstDay = new Date(viewedYear, viewedMonth, 1);
+            const lastDay = new Date(viewedYear, viewedMonth + 1, 0);
+            const startDay = (firstDay.getDay() + 6) % 7;
+
+            // Näytetään kuukauden ja vuoden nimi
+            currentMonthLabel.textContent = `${monthNames[viewedMonth]} ${viewedYear}`;
+
+            for (let i = 0; i < startDay; i++) {
+                const empty = document.createElement("div");
+                calendar.appendChild(empty);
+            }
+
+            //Päiväruudut
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dayBox = document.createElement("div");
+                dayBox.className = "day-box";
+                dayBox.textContent = day;
+
+                // Korostetaan nykyinen päivä
+                if (
+                    viewedYear === current.getFullYear() &&
+                    viewedMonth === current.getMonth() &&
+                    day === current.getDate()
+                ) {
+                    dayBox.classList.add("today");
+                }
+
+                const dateKey = `${viewedYear}-${viewedMonth + 1}-${day}`;
+                const events = JSON.parse(localStorage.getItem(`event-${dateKey}`)) || [];
+
+                // Näytetään merkintäpiste, jos tapahtumia on
+                if (events.length > 0) {
+                    const dot = document.createElement("span");
+                    dot.className = "event-dot";
+                    dot.title = events.join("\n");
+                    dayBox.appendChild(dot);
+                }
+
+                // Klikattaessa avataan tapahtumalomake kyseiselle päivälle
+                dayBox.addEventListener("click", () => {
+                    if (eventForm.classList.contains("hidden") || saveEvent.dataset.date !== dateKey) {
+                        eventForm.classList.remove("hidden");
+                        selectedDateSpan.textContent = `${day}.${viewedMonth + 1}.${viewedYear}`;
+                        saveEvent.dataset.date = dateKey;
+                        eventTitle.value = "";
+                        updateEventList(dateKey);
+                    } else {
+                        eventForm.classList.add("hidden");
+                        saveEvent.dataset.date = "";
+                    }
+                });
+
+                calendar.appendChild(dayBox);
+            }
+        }
+
+        // Tallennetaan uusi tapahtuma
+        saveEvent.addEventListener("click", () => {
+            const dateKey = saveEvent.dataset.date;
+            const value = eventTitle.value.trim();
+            if (value) {
+                const events = JSON.parse(localStorage.getItem(`event-${dateKey}`)) || [];
+                events.push(value);
+                localStorage.setItem(`event-${dateKey}`, JSON.stringify(events));
+            }
+            eventForm.classList.add("hidden");
+            renderCalendar();
+        });
+
+        // Kuukauden vaihto taaksepäin
+        document.getElementById("prevMonth").addEventListener("click", () => {
+            viewedMonth--;
+            if (viewedMonth < 0) {
+                viewedMonth = 11;
+                viewedYear--;
+            }
+            renderCalendar();
+        });
+
+        // Kuukauden vaihto eteenpäin
+        document.getElementById("nextMonth").addEventListener("click", () => {
+            viewedMonth++;
+            if (viewedMonth > 11) {
+                viewedMonth = 0;
+                viewedYear++;
+            }
+            renderCalendar();
+        });
+
+        // Piirretään kalenteri ensimmäisellä latauksella
+        renderCalendar();
+    </script>
+</body>
+
+</html>
